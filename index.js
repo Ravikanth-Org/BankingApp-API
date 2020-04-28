@@ -1,15 +1,26 @@
 const express = require('express');
+const path = require('path')
 const bodyParser = require('body-parser');
 
 // create express app
 const app = express();
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
+/*
+//View Engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
 
+//Set Static Folder
+app.use(express.static(path.join(__dirname, 'client')));
+
+app.use('/', index);
+*/
 // Configuring the database
 const dbConfig = require('./config/dbconfig.js');
 const mongoose = require('mongoose');
@@ -26,9 +37,10 @@ mongoose.connect(dbConfig.url, {
     process.exit();
 });
 
+require('./app/routes/account.routes.js')(app);
 // define a simple route
 app.get('/', (req, res) => {
-    res.json({"message": "Welcome to EasyNotes application. Take notes quickly. Organize and keep track of all your notes."});
+    res.json({"message": "Welcome."});
 });
 
 // listen for requests

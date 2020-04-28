@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const AccountSchema = mongoose.Schema({
     accountName: String,
     accountNumber: Number,
-    openingDate: Date,
-    accountBalance: Number
+    openingDate: Date
 }, {
     timestamps: true
 });

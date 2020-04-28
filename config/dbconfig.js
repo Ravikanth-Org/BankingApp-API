@@ -1,3 +1,3 @@
 module.exports = {
-    url: 'mongodb://localhost:27017/bank-app'
+    url: 'mongodb+srv://dbuser:dbpassword@cluster0-gbbts.mongodb.net/BankAppDB?retryWrites=true&w=majority'
 }
