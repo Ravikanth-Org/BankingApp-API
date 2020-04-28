@@ -20,7 +20,7 @@ exports.create = (req, res) => {
         res.send(data);
     }).catch(err => {
         res.status(500).send({
-            message: err.message || "Error occurred while creating entry of the Employee."
+            message: err.message || "Error occurred while creating entry of the Account."
         });
     });
 };

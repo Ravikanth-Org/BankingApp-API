@@ -3,7 +3,7 @@ module.exports = (app) => {
 
     
     app.post('/accounts', accounts.create);
-
+    
 
     app.get('/accounts', accounts.findAll);
 
