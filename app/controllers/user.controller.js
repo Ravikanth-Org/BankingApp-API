@@ -47,3 +47,88 @@ exports.findAll = (req, res) => {
 };
 
 
+exports.findOne = (req, res) => {
+   
+    user.find().where('userid').equals(req.params.userId)
+    .then(usr => {
+        if(!usr) {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });            
+        }
+        res.send(usr);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });                
+        }
+        return res.status(500).send({
+            message: "Error retrieving User with userid " + req.params.userId
+        });
+    });
+};
+
+
+exports.update = (req, res) => {
+    
+    if(!req.body.username) {
+        return res.status(400).send({
+            message: "username name can not be empty"
+        });
+    }
+
+    user.findOneAndUpdate({userid: req.params.userId}, { $set: { 
+        password: req.body.password,
+        userDetails: {
+            address: req.body.userDetails.address,
+            city: req.body.userDetails.city,
+            pin: req.body.userDetails.pin,
+            phone: req.body.userDetails.phone
+    }
+    }}, {new: true},function (err, usr) {
+        
+    }) 
+ 
+    .then(usr => {
+        if(!usr) {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });
+        }
+        res.send(usr);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });                
+        }
+        return res.status(500).send({
+            message: "Error updating user details with given userid " + req.params.userId
+        });
+    });
+};
+
+
+
+exports.delete = (req, res) => {
+    
+    user.findOneAndDelete({userid: req.params.userId})
+    .then(usr => {
+        if(!usr) {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });
+        }
+        res.send({message: "User details deleted successfully!"});
+    }).catch(err => {
+        if(err.kind === 'ObjectId' || err.name === 'NotFound') {
+            return res.status(404).send({
+                message: "User not found with userid " + req.params.userId
+            });                
+        }
+        return res.status(500).send({
+            message: "Could not delete user details with userid " + req.params.userId
+        });
+    });
+};

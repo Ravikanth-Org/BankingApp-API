@@ -6,4 +6,14 @@ module.exports = (app) => {
 
 
     app.get('/users', users.findAll);
+
+
+    app.get('/user/:userId', users.findOne);
+
+    
+    app.put('/user/:userId', users.update);
+
+    
+    app.delete('/user/:userId', users.delete);
+
 }
