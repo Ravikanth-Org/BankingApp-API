@@ -132,3 +132,36 @@ exports.delete = (req, res) => {
         });
     });
 };
+
+
+
+exports.userLogin = function (req, res, next) {
+
+    if(!req.body.username || !req.body.password) {
+        return res.status(400).send({
+            message: "UserName/Password can not be empty"
+        });
+    }
+    const {username, password}= req.body;
+    user.findOne({username, password})
+    .then(usr => {
+        if(!usr) {
+            return res.status(404).send({
+                message: "Username or password is wrong. Enter correct details"
+            });            
+        }
+        res.send(req.body.username + " logged in successfully");
+        return next();
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "Username not found "
+            });                
+        }
+        return res.status(500).send({
+            message: "Something went wrong. Try later "
+        });
+    });
+};
+
+

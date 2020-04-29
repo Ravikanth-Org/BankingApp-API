@@ -16,4 +16,6 @@ module.exports = (app) => {
     
     app.delete('/user/:userId', users.delete);
 
+       
+    app.post('/user/login', users.userLogin);
 }
