@@ -1,4 +1,4 @@
-const user = require('../models/account.model.js');
+const user = require('../models/user.model.js');
 
 exports.create = (req, res) => {
 
