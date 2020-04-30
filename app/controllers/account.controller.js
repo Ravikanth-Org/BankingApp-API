@@ -2,16 +2,22 @@ const Account = require('../models/account.model.js');
 
 exports.create = (req, res) => {
 
-    if(!req.body.name) {
+    if(!req.body.owner|| !req.body.type) {
         return res.status(400).send({
-            message: "Account name can not be empty"
+            message: "Account owner and type can not be empty"
         });
     }
 
     const account = new Account({
-        accountNumber: Math.random().toString().slice(2,11), 
-        accountName: req.body.name,
-        openingDate: new Date()
+        accountid: Math.random().toString().slice(2,11), 
+        type: req.body.type,
+        owner: req.body.owner,
+        branch: req.body.branch,
+        balance: req.body.balance,
+        currency: req.body.currency,
+        createdDate: Date().Now,
+        lastTransDate: Date().Now,
+        cheques: req.body.cheques
     });
 
     

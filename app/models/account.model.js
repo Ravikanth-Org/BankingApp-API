@@ -9,7 +9,10 @@ const AccountSchema = mongoose.Schema({
     balance: mongoose.Types.Decimal128,
     currency: String,
     createdDate: Date,
-    lastTransDate: Date
+    lastTransDate: Date,
+    cheques: [{
+        chqNumber: Number
+    }]
 }, {
     timestamps: true
 }
