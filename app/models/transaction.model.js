@@ -1,20 +1,20 @@
 const mongoose = require('mongoose');
 
-const TransactionSchema = Schema({
+const TransactionSchema = mongoose.Schema({
     transactionId: Number,
-    accountId: mongoose.Types.ObjectId,
+    accountId: Number,
     time: Date,
     status: String,
-    balance: mongoose.Types.Decimal128,
+    balance: Number,
     remarks: String,
     credit: Boolean,
     transtype: String,
-    fromAcct: mongoose.Types.ObjectId,
-    toAcct:mongoose.Types.ObjectId,
+    fromAcct: Number,
+    toAcct:Number,
     chequeNumber: Number
 }, {
     timestamps: true
 }
 );
 
-export default model('Transaction', TransactionSchema);
+module.exports = mongoose.model('Transaction', TransactionSchema);

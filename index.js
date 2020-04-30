@@ -39,6 +39,7 @@ mongoose.connect(dbConfig.url, {
 
 require('./app/routes/account.routes.js')(app);
 require('./app/routes/users.routes.js')(app);
+require('./app/routes/transaction.routes.js')(app);
 
 // define a simple route
 app.get('/', (req, res) => {

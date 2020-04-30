@@ -2,7 +2,7 @@ const transaction = require('../models/transaction.model.js');
 
 exports.create = (req, res) => {
 
-    if(!req.body.accountid || !req.body.credit) {
+    if(!req.body.accountId || !req.body.credit) {
         return res.status(400).send({
             message: "Account Id and Transaction Credit is required."
         });
@@ -11,7 +11,7 @@ exports.create = (req, res) => {
     const txn = new transaction({
         transactionId: Math.random().toString().slice(2,11),
         accountId: req.body.accountId,
-        time: Date.now,
+        transactiontime: Date.now,
         status: req.body.status,
         balance: req.body.balance,
         remarks: req.body.remarks,
@@ -48,7 +48,7 @@ exports.findAll = (req, res) => {
 
 exports.findOne = (req, res) => {
 
-    transaction.find().where('transactionid').equals(req.params.transactionId)
+    transaction.find().where('transactionId').equals(req.params.transactionId)
     .then(transaction => {
         if(!transaction) {
             return res.status(404).send({
