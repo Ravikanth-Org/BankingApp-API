@@ -6,7 +6,7 @@ const AccountSchema = mongoose.Schema({
     type: String,
     owner: Number,
     branch: String,
-    balance: mongoose.Types.Decimal128,
+    balance: Number,
     currency: String,
     createdDate: Date,
     lastTransDate: Date,
