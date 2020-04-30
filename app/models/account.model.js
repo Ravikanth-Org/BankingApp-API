@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const AccountSchema = mongoose.Schema({
     accountid: Number,
     type: String,
-    owner: mongoose.Types.ObjectId,
+    owner: Number,
     branch: String,
     balance: mongoose.Types.Decimal128,
     currency: String,
