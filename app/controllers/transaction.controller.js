@@ -11,7 +11,7 @@ exports.create = (req, res) => {
     const txn = new transaction({
         transactionId: Math.random().toString().slice(2,11),
         accountId: req.body.accountId,
-        transactiontime: Date.now,
+        transactiontime: Date.now(),
         status: req.body.status,
         balance: req.body.balance,
         remarks: req.body.remarks,

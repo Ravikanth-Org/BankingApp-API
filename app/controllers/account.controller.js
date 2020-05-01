@@ -17,8 +17,8 @@ exports.create = (req, res) => {
         branch: req.body.branch,
         balance: req.body.balance,
         currency: req.body.currency,
-        createdDate: Date().Now,
-        lastTransDate: Date().Now,
+        createdDate: Date.now(),
+        lastTransDate: Date.now(),
         cheques: req.body.cheques
     });
 
