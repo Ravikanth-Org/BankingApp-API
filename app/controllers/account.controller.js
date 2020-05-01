@@ -9,9 +9,11 @@ exports.create = (req, res) => {
     }
 
     const account = new Account({
-        accountid: Math.random().toString().slice(2,11), 
+        accountid: Math.random().toString().slice(2,11),
         type: req.body.type,
-        owner: req.body.owner,
+        joint: req.body.joint?req.body.joint:false,
+        primaryowner: req.body.primaryowner,
+        secondaryowner: req.body.secondaryowner?req.body.secondaryowner:'',
         branch: req.body.branch,
         balance: req.body.balance,
         currency: req.body.currency,
@@ -20,7 +22,7 @@ exports.create = (req, res) => {
         cheques: req.body.cheques
     });
 
-    
+
     account.save()
     .then(data => {
         res.send(data);
