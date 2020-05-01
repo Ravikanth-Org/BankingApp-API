@@ -2,9 +2,9 @@ module.exports = (app) => {
     const accounts = require('../controllers/account.controller.js');
 
     
-    app.post('/accounts', accounts.create);
+    app.post('/api/account', accounts.create);
     
 
-    app.get('/accounts', accounts.findAll);
+    app.get('/api/accounts', accounts.findAll);
 
 }
