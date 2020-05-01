@@ -49,9 +49,10 @@ exports.findAll = (req, res) => {
 
 exports.findOne = (req, res) => {
 
+    if(req.params.userId){
     user.find().where('userid').equals(req.params.userId)
     .then(usr => {
-        if(!usr) {
+        if(usr.length === 0) {
             return res.status(404).send({
                 message: "User not found with userid " + req.params.userId
             });
@@ -68,6 +69,30 @@ exports.findOne = (req, res) => {
         });
     });
 };
+
+    if(req.params.userName){
+    user.find().where('username').equals(req.params.userName)
+    .then(usr => {
+        if(usr.length === 0) {
+            return res.status(404).send({
+                message: "User not found with username " + req.params.userName
+            });
+        }
+        res.send(usr);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "User not found with username " + req.params.userName
+            });
+        }
+        return res.status(500).send({
+            message: "Error retrieving User with username " + req.params.userName
+        });
+    });
+    };
+};
+
+
 
 
 exports.update = (req, res) => {
@@ -162,4 +187,27 @@ exports.userLogin = function (req, res, next) {
     });
 };
 
+/*
+exports.findOne = (req, res) => {
 
+    user.find().where('username').equals(req.params.userName)
+    .then(usr => {
+        if(!usr) {
+            return res.status(404).send({
+                message: "User not found with username " + req.params.userName
+            });
+        }
+        res.send(usr);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "User not found with username " + req.params.userName
+            });
+        }
+        return res.status(500).send({
+            message: "Error retrieving User with username " + req.params.userName
+        });
+    });
+};
+
+*/
