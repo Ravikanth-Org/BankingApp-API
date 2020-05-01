@@ -48,20 +48,20 @@ exports.findAll = (req, res) => {
 
 
 exports.findOne = (req, res) => {
-   
+
     user.find().where('userid').equals(req.params.userId)
     .then(usr => {
         if(!usr) {
             return res.status(404).send({
                 message: "User not found with userid " + req.params.userId
-            });            
+            });
         }
         res.send(usr);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
                 message: "User not found with userid " + req.params.userId
-            });                
+            });
         }
         return res.status(500).send({
             message: "Error retrieving User with userid " + req.params.userId
@@ -71,14 +71,14 @@ exports.findOne = (req, res) => {
 
 
 exports.update = (req, res) => {
-    
+
     if(!req.body.username) {
         return res.status(400).send({
             message: "username name can not be empty"
         });
     }
 
-    user.findOneAndUpdate({userid: req.params.userId}, { $set: { 
+    user.findOneAndUpdate({userid: req.params.userId}, { $set: {
         password: req.body.password,
         userDetails: {
             address: req.body.userDetails.address,
@@ -87,9 +87,8 @@ exports.update = (req, res) => {
             phone: req.body.userDetails.phone
     }
     }}, {new: true},function (err, usr) {
-        
-    }) 
- 
+    })
+
     .then(usr => {
         if(!usr) {
             return res.status(404).send({
@@ -112,7 +111,6 @@ exports.update = (req, res) => {
 
 
 exports.delete = (req, res) => {
-    
     user.findOneAndDelete({userid: req.params.userId})
     .then(usr => {
         if(!usr) {
@@ -125,7 +123,7 @@ exports.delete = (req, res) => {
         if(err.kind === 'ObjectId' || err.name === 'NotFound') {
             return res.status(404).send({
                 message: "User not found with userid " + req.params.userId
-            });                
+            });
         }
         return res.status(500).send({
             message: "Could not delete user details with userid " + req.params.userId
@@ -148,7 +146,7 @@ exports.userLogin = function (req, res, next) {
         if(!usr) {
             return res.status(404).send({
                 message: "Username or password is wrong. Enter correct details"
-            });            
+            });
         }
         res.send(req.body.username + " logged in successfully");
         return next();
@@ -156,7 +154,7 @@ exports.userLogin = function (req, res, next) {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
                 message: "Username not found "
-            });                
+            });
         }
         return res.status(500).send({
             message: "Something went wrong. Try later "
