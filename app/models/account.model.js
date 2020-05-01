@@ -4,7 +4,9 @@ const mongoose = require('mongoose');
 const AccountSchema = mongoose.Schema({
     accountid: Number,
     type: String,
-    owner: Number,
+    joint: Boolean,
+    primaryowner: Number,
+    secondaryowner: Number,
     branch: String,
     balance: Number,
     currency: String,
