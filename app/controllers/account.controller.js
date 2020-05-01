@@ -2,7 +2,7 @@ const Account = require('../models/account.model.js');
 
 exports.create = (req, res) => {
 
-    if(!req.body.owner|| !req.body.type) {
+    if(!req.body.primaryowner|| !req.body.type) {
         return res.status(400).send({
             message: "Account owner and type can not be empty"
         });
