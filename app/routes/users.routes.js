@@ -9,5 +9,5 @@ module.exports = (app) => {
     app.put('/api/user/:userId', user.update);
     app.delete('/api/user/:userId', user.delete);
 
-    app.get('/api/users/:userName', user.findOne);
+    app.get('/api/users/:name', user.findOne);
 }
