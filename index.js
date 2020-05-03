@@ -45,6 +45,7 @@ require('./app/routes/account.routes.js')(app);
 require('./app/routes/users.routes.js')(app);
 require('./app/routes/transaction.routes.js')(app);
 require('./app/routes/admin.routes.js')(app);
+require('./app/routes/branch.routes.js')(app);
 
 // define a simple route
 app.get('/', (req, res) => {

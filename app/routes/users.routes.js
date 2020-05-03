@@ -8,4 +8,6 @@ module.exports = (app) => {
     app.get('/api/user/:userId', user.findOne);
     app.put('/api/user/:userId', user.update);
     app.delete('/api/user/:userId', user.delete);
+
+    app.get('/api/users/:name', user.findOne);
 }

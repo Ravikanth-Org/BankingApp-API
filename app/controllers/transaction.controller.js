@@ -35,6 +35,28 @@ exports.create = (req, res) => {
 
 
 exports.findAll = (req, res) => {
+    
+    if(req.params.accountId){
+        transaction.find().where('accountId').equals(req.params.accountId)
+        .then(txn => {
+            if(txn.length === 0) {
+                return res.status(404).send({
+                    message: "No transactions found."
+                });
+            }
+            res.send(txn);
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "No transactions found."
+                });
+            }
+            return res.status(500).send({
+                message: "Error retrieving transaction details."
+            });
+        });
+    }else{
+    
     transaction.find()
     .then(transaction => {
         res.send(transaction);
@@ -43,6 +65,7 @@ exports.findAll = (req, res) => {
             message: err.message || "Some error occurred while retrieving details of transactions."
         });
     });
+}
 };
 
 

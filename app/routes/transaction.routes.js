@@ -7,4 +7,6 @@ module.exports = (app) => {
     app.get('/api/trnx/:transactionId', transactions.findOne);
     app.put('/api/trnx/:transactionId', transactions.update);
     app.delete('/api/trnx/:transactionId', transactions.delete);
+
+    app.get('/api/trnxs/:accountId', transactions.findAll);
 }
