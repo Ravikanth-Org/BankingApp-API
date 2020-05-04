@@ -7,4 +7,5 @@ module.exports = (app) => {
 
     app.get('/api/accounts', accounts.findAll);
 
+    app.get('/api/account/:userid',accounts.searchAccountByUserId)
 }

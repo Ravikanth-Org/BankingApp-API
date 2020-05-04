@@ -1,4 +1,6 @@
 const Account = require('../models/account.model.js');
+const Users = require('./user.controller')
+const user = require('../models/user.model')
 
 exports.create = (req, res) => {
 
@@ -44,5 +46,34 @@ exports.findAll = (req, res) => {
         });
     });
 };
+
+exports.searchAccountByUserId = (req,res) => {
+    let userid = req.params.userid
+    //validate
+    if(!userid) {
+        return res.status(400).send({
+            message: 'Bad Request'
+        });
+    }
+    let cond = {userid: userid} = req.body
+    user.findOne(cond)
+    .then(usr=>{
+        if(!usr) {
+            return res.status(404).send({
+                message: "User does not exist in DB."
+                });
+        }
+        let cond = {primaryowner:usr.userid} = req.body
+        Account.findOne(cond)
+        .then(acct => {
+            if(!acct){
+                return res.status(404).send({
+                    message: "No matching Account."
+                    });
+            }
+            return res.send(acct)
+        })
+    })
+}
 
 
