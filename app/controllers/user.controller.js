@@ -157,28 +157,31 @@ exports.delete = (req, res) => {
 };
 
 
-
-exports.userLogin = function (req, res, next) {
-
+//Login method
+exports.userLogin = function (req, res) {
+    //validate
     if(!req.body.username || !req.body.password) {
         return res.status(400).send({
             message: "UserName/Password can not be empty"
         });
     }
-    const {username, password}= req.body;
-    user.findOne({username, password})
+    const condition = {username, password}= req.body;
+    user.findOne(condition)
     .then(usr => {
         if(!usr) {
             return res.status(404).send({
-                message: "Username or password is wrong. Enter correct details"
-            });
+                message: "Username/Password is incorrect."
+                });
         }
-        res.send(req.body.username + " logged in successfully");
-        return next();
+        res.send(
+            {
+                Status: "Success", 
+                user: {username:usr.username, role: usr.role}
+        });
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Username not found "
+                message: "Could not validate User!"
             });
         }
         return res.status(500).send({
