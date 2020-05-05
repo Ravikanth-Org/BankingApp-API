@@ -4,6 +4,8 @@ module.exports = (app) => {
     app.post('/api/trnx', transactions.create);
     app.get('/api/trnxs', transactions.findAll);
 
+    app.get('/api/transaction/ministatement/:accountid',transactions.getMiniStatement)
+
     app.get('/api/trnx/:transactionId', transactions.findOne);
     app.put('/api/trnx/:transactionId', transactions.update);
     app.delete('/api/trnx/:transactionId', transactions.delete);

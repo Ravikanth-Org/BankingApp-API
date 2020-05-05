@@ -28,6 +28,7 @@ app.use('/', index);
 // Configuring the database
 const dbConfig = require('./config/dbconfig.js');
 const mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 
 mongoose.Promise = global.Promise;
 

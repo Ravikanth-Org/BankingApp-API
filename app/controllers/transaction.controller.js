@@ -1,4 +1,4 @@
-const transaction = require('../models/transaction.model.js');
+const TxnModel = require('../models/transaction.model.js');
 
 exports.create = (req, res) => {
 
@@ -8,7 +8,7 @@ exports.create = (req, res) => {
         });
     }
 
-    const txn = new transaction({
+    const txn = new TxnModel({
         transactionId: Math.random().toString().slice(2,11),
         accountId: req.body.accountId,
         transactiontime: Date.now(),
@@ -37,7 +37,7 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
     
     if(req.params.accountId){
-        transaction.find().where('accountId').equals(req.params.accountId)
+        TxnModel.find().where('accountId').equals(req.params.accountId)
         .then(txn => {
             if(txn.length === 0) {
                 return res.status(404).send({
@@ -57,7 +57,7 @@ exports.findAll = (req, res) => {
         });
     }else{
     
-    transaction.find()
+    TxnModel.find()
     .then(transaction => {
         res.send(transaction);
     }).catch(err => {
@@ -71,7 +71,7 @@ exports.findAll = (req, res) => {
 
 exports.findOne = (req, res) => {
 
-    transaction.find().where('transactionId').equals(req.params.transactionId)
+    TxnModel.find().where('transactionId').equals(req.params.transactionId)
     .then(transaction => {
         if(!transaction) {
             return res.status(404).send({
@@ -102,7 +102,7 @@ exports.update = (req, res) => {
 }
 exports.delete = (req, res) => {
 
-    transaction.findOneAndDelete({transactionId: req.params.transactionid})
+    TxnModel.findOneAndDelete({transactionId: req.params.transactionid})
     .then(transaction => {
         if(!transaction) {
             return res.status(404).send({
@@ -120,4 +120,18 @@ exports.delete = (req, res) => {
             message: "Could not delete transaction details with transactionid " + req.params.transactionid
         });
     });
+}
+
+exports.getMiniStatement = async function(req, res){
+    try {
+        const accountid = req.params.accountid
+        TxnModel.find({accountId: accountid}).sort({createdAt:'descending'}).limit(10)
+        .then( txns => {
+            if(!txns || txns.length === 0){res.status(500).send({message: "Transactions Not Found!"})}
+            res.send(txns)
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({message:"Internal Error"+error})
+    }
 }
