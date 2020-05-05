@@ -81,27 +81,40 @@ exports.searchAccountByUserId = (req,res) => {
 /*===================================
     update Account Balance
 ===================================*/
-updateAccountBalance = function(accountid, transAmt, credit, error)
+updateAccountBalance = async function(accountid, transAmt, credit, error)
 {
-    let accBal = 0
-    AcctMdl.findOne({accountId: accountid })
+    var accBal = 0
+    let cond = {accountid: accountid}
+    AcctMdl.findOne(cond)
     .then(acct => {
         if(!acct || acct.length===0){
             return({
                 message: "Account not found"
             });
         }
-        accBal = acct.accountbal;
+        accBal = acct.balance;
         if(credit){
             accBal += transAmt;
         }else{
             accBal -= transAmt;
         }
-        AcctMdl.findOneAndUpdate({accountid: accountId}, { $set: {
+        acct.balance = accBal
+        AcctMdl.update(acct)
+        /*AcctMdl.findOneAndUpdate({accountid: accountid},  {
             balance:accBal
-        }})
-    })
-    return accBal
+        })*/
+        return accBal
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "Could not validate User!"
+            });
+        }
+        return res.status(500).send({
+            message: "Something went wrong. Try later "
+        });
+    });
+    
 }
 
 
@@ -120,7 +133,9 @@ exports.AccountTransaction = {
 /*===================================
     Create New Transaction and Update Account Balance
 ===================================*/
-exports.updateAccountNewTransaction = function(AccountTransaction, res) {
+exports.updateAccountNewTransaction = async function(req, res){
+    let AccountTransaction = req.body
+
     if(!AccountTransaction || !AccountTransaction.accountId
         || !AccountTransaction.transAmt)
         {
@@ -128,16 +143,18 @@ exports.updateAccountNewTransaction = function(AccountTransaction, res) {
                 message: "Bad Data"
             })
         }
-        let accBal = updateAccountBalance(AccountTransaction.accountId,
+        var accBal = 0
+        accBal = await updateAccountBalance(AccountTransaction.accountId,
             AccountTransaction.transAmt, AccountTransaction.credit )
 
-
-        let transObj = new TxnMdl({
+        console.log(accBal.json)
+        let transObj = await new TxnMdl({
             transactionId: Math.random().toString().slice(2,11),
             accountId: AccountTransaction.accountId,
             transactiontime: Date.now(),
             status: "Success",
             balance: accBal,
+            transAmount: AccountTransaction.transAmt,
             remarks: AccountTransaction.remarks,
             credit: AccountTransaction.credit,
             transtype: AccountTransaction.transtype,
@@ -145,7 +162,7 @@ exports.updateAccountNewTransaction = function(AccountTransaction, res) {
             toAcct:AccountTransaction.toAcct,
             chequeNumber: AccountTransaction.chequeNumber
         })
-        txn.save()
+        await transObj.save()
         .then(data => {
             res.status(200).send({message:"Account updated!"});
         }).catch(err => {
