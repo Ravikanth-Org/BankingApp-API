@@ -1,6 +1,6 @@
-const Account = require('../models/account.model.js');
-const Users = require('./user.controller')
-const user = require('../models/user.model')
+const AcctMdl = require('../models/account.model.js');
+const UsrCtrl = require('./user.controller')
+const UsrMdl = require('../models/user.model')
 
 exports.create = (req, res) => {
 
@@ -10,7 +10,7 @@ exports.create = (req, res) => {
         });
     }
 
-    const account = new Account({
+    const account = new AcctMdl({
         accountid: Math.random().toString().slice(2,11),
         type: req.body.type,
         joint: req.body.joint?req.body.joint:false,
@@ -37,7 +37,7 @@ exports.create = (req, res) => {
 
 
 exports.findAll = (req, res) => {
-    Account.find()
+    AcctMdl.find()
     .then(account => {
         res.send(account);
     }).catch(err => {
@@ -47,6 +47,9 @@ exports.findAll = (req, res) => {
     });
 };
 
+/*  =================================
+    Search Account by User Id
+====================================*/
 exports.searchAccountByUserId = (req,res) => {
     let userid = req.params.userid
     //validate
@@ -55,16 +58,15 @@ exports.searchAccountByUserId = (req,res) => {
             message: 'Bad Request'
         });
     }
-    let cond = {userid: userid} = req.body
-    user.findOne(cond)
-    .then(usr=>{
-        if(!usr) {
+    UsrMdl.find().where('userid').equals(userid)
+    .then(usr => {
+        if(!usr || usr.length===0) {
             return res.status(404).send({
                 message: "User does not exist in DB."
                 });
         }
-        let cond = {primaryowner:usr.userid} = req.body
-        Account.findOne(cond)
+        let cond = {primaryowner:userid}
+        AcctMdl.findOne(cond)
         .then(acct => {
             if(!acct){
                 return res.status(404).send({
@@ -75,5 +77,7 @@ exports.searchAccountByUserId = (req,res) => {
         })
     })
 }
+
+
 
 
