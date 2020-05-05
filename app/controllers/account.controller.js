@@ -81,10 +81,9 @@ exports.searchAccountByUserId = (req,res) => {
 /*===================================
     update Account Balance
 ===================================*/
-updateAccountBalance = async function(accountid, transAmt, credit, error)
+updateAccountBalance = async function(AccountTransaction, res)
 {
-    var accBal = 0
-    let cond = {accountid: accountid}
+    let cond = {accountid: AccountTransaction.accountId}
     AcctMdl.findOne(cond)
     .then(acct => {
         if(!acct || acct.length===0){
@@ -93,17 +92,44 @@ updateAccountBalance = async function(accountid, transAmt, credit, error)
             });
         }
         accBal = acct.balance;
-        if(credit){
-            accBal += transAmt;
+        if(AccountTransaction.credit){
+            accBal += AccountTransaction.transAmt;
         }else{
-            accBal -= transAmt;
+            accBal -= AccountTransaction.transAmt;
         }
         acct.balance = accBal
-        AcctMdl.update(acct)
-        /*AcctMdl.findOneAndUpdate({accountid: accountid},  {
-            balance:accBal
-        })*/
-        return accBal
+        //let upcond = {accountid: AccountTransaction.accountId}
+        //AcctMdl.updateOne(upcond, {$set: { branch:'changed'}})
+        AcctMdl.findOneAndUpdate(
+            {accountid: AccountTransaction.accountId},
+            { $set: {balance: accBal} },
+            {new: true},
+            function (err, acc) {console.log(err,acc)}
+            )
+
+        let transObj = new TxnMdl({
+            transactionId: Math.random().toString().slice(2,11),
+            accountId: AccountTransaction.accountId,
+            transactiontime: Date.now(),
+            status: AccountTransaction.status,
+            balance: accBal,
+            transAmount: AccountTransaction.transAmt,
+            remarks: AccountTransaction.remarks,
+            credit: AccountTransaction.credit,
+            transtype: AccountTransaction.transtype,
+            fromAcct: AccountTransaction.fromAcct,
+            toAcct:AccountTransaction.toAcct,
+            chequeNumber: AccountTransaction.chequeNumber
+        })
+
+        transObj.save()
+        .then(data => {
+            res.status(200).send({message:"Account updated!"});
+        }).catch(err => {
+            res.status(500).send({
+            message: err.message || "Error occurred while creating entry of the User."
+            })
+        })
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
@@ -114,7 +140,6 @@ updateAccountBalance = async function(accountid, transAmt, credit, error)
             message: "Something went wrong. Try later "
         });
     });
-    
 }
 
 
@@ -133,7 +158,7 @@ exports.AccountTransaction = {
 /*===================================
     Create New Transaction and Update Account Balance
 ===================================*/
-exports.updateAccountNewTransaction = async function(req, res){
+exports.updateAccountNewTransaction = function(req, res){
     let AccountTransaction = req.body
 
     if(!AccountTransaction || !AccountTransaction.accountId
@@ -144,33 +169,7 @@ exports.updateAccountNewTransaction = async function(req, res){
             })
         }
         var accBal = 0
-        accBal = await updateAccountBalance(AccountTransaction.accountId,
-            AccountTransaction.transAmt, AccountTransaction.credit )
-
-        console.log(accBal.json)
-        let transObj = await new TxnMdl({
-            transactionId: Math.random().toString().slice(2,11),
-            accountId: AccountTransaction.accountId,
-            transactiontime: Date.now(),
-            status: "Success",
-            balance: accBal,
-            transAmount: AccountTransaction.transAmt,
-            remarks: AccountTransaction.remarks,
-            credit: AccountTransaction.credit,
-            transtype: AccountTransaction.transtype,
-            fromAcct: AccountTransaction.fromAcct,
-            toAcct:AccountTransaction.toAcct,
-            chequeNumber: AccountTransaction.chequeNumber
-        })
-        await transObj.save()
-        .then(data => {
-            res.status(200).send({message:"Account updated!"});
-        }).catch(err => {
-            res.status(500).send({
-            message: err.message || "Error occurred while creating entry of the User."
-        });
-    });
-
+        updateAccountBalance(AccountTransaction,res)
 }
 
 
