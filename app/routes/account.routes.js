@@ -3,9 +3,8 @@ module.exports = (app) => {
 
     
     app.post('/api/account', accounts.create);
-    
+    app.post('/api/account/newtransaction:AccountTransaction', accounts.updateAccountNewTransaction);
 
     app.get('/api/accounts', accounts.findAll);
-
     app.get('/api/account/:userid',accounts.searchAccountByUserId)
 }

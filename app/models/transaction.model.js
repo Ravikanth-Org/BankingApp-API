@@ -5,6 +5,7 @@ const TransactionSchema = mongoose.Schema({
     accountId: Number,
     time: Date,
     status: String,
+    transAmount: Number,
     balance: Number,
     remarks: String,
     credit: Boolean,
