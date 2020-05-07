@@ -81,15 +81,13 @@ exports.searchAccountByUserId = (req,res) => {
 /*===================================
     update Account Balance
 ===================================*/
-updateAccountBalance = async function(AccountTransaction, res)
+updateAccountBalance = async function(AccountTransaction)
 {
-    let cond = {accountid: AccountTransaction.accountId}
-    AcctMdl.findOne(cond)
-    .then(acct => {
-        if(!acct || acct.length===0){
-            return({
-                message: "Account not found"
-            });
+    try{
+        let cond = {accountid: AccountTransaction.accountId}
+        let acct = await AcctMdl.findOne(cond)
+        if(!acct){
+            return {status:-1, error:'Could not find the Account!'}
         }
         accBal = acct.balance;
         if(AccountTransaction.credit){
@@ -98,19 +96,19 @@ updateAccountBalance = async function(AccountTransaction, res)
             accBal -= AccountTransaction.transAmt;
         }
         acct.balance = accBal
-        //let upcond = {accountid: AccountTransaction.accountId}
-        //AcctMdl.updateOne(upcond, {$set: { branch:'changed'}})
-        AcctMdl.findOneAndUpdate(
+        let updated = await AcctMdl.findOneAndUpdate(
             {accountid: AccountTransaction.accountId},
             { $set: {balance: accBal} },
-            {new: true},
-            function (err, acc) {console.log(err,acc)}
-            )
+            {new: true})
+
+        if(!updated){
+            return {status:-1, error:'Account update failed!'}
+        }
 
         let transObj = new TxnMdl({
             transactionId: Math.random().toString().slice(2,11),
             accountId: AccountTransaction.accountId,
-            transactiontime: Date.now(),
+            time: Date.now(),
             status: AccountTransaction.status,
             balance: accBal,
             transAmount: AccountTransaction.transAmt,
@@ -122,25 +120,18 @@ updateAccountBalance = async function(AccountTransaction, res)
             chequeNumber: AccountTransaction.chequeNumber
         })
 
-        transObj.save()
-        .then(data => {
-            res.status(200).send({message:"Account updated!"});
-        }).catch(err => {
-            res.status(500).send({
-            message: err.message || "Error occurred while creating entry of the User."
-            })
-        })
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "Could not validate User!"
-            });
+        let saved = await transObj.save()
+
+        if(!saved){
+            return {status:-1, error:'Transaction could not be created!'}
         }
-        return res.status(500).send({
-            message: "Something went wrong. Try later "
-        });
-    });
+
+        return {status:0, error:''}
+    }catch(err){
+        return {status:-1, error:err.toString()}
+    }
 }
+
 
 
 exports.AccountTransaction = {
@@ -158,20 +149,65 @@ exports.AccountTransaction = {
 /*===================================
     Create New Transaction and Update Account Balance
 ===================================*/
-exports.updateAccountNewTransaction = function(req, res){
-    let AccountTransaction = req.body
+exports.updateAccountNewTransaction = async function(req, res){
 
-    if(!AccountTransaction || !AccountTransaction.accountId
-        || !AccountTransaction.transAmt)
+    let AccountTransaction = req.body
+    if(!AccountTransaction ||
+        !AccountTransaction.accountId ||
+        !AccountTransaction.transAmt)
         {
-            return res.status(400).send({
+            res.status(400).send({
                 message: "Bad Data"
             })
         }
-        var accBal = 0
-        updateAccountBalance(AccountTransaction,res)
+    try{
+        result = await updateAccountBalance(AccountTransaction)
+        result && result.status === 0 ? res.status(200).send({message:"Account Updated !"}) 
+                                            : res.status(500).send({message:"Error updating"});
+    }catch(err){
+            res.status(500).send({message:"Error updating"+err})
+    }
 }
 
+/*===================================
+    Funds Transfer
+===================================*/
+exports.transferFunds = async function(req, res){
+    try{
+        const fromAcc = req.body.fromAcct
+        const toAcc = req.body.toAcct
+        const amt = req.body.transAmount
 
+        let fromAccount = {
+            accountId:fromAcc,
+            status: "Success",
+            remarks: "Amount Transferred",
+            transAmt: amt,
+            credit: false,
+            transtype: "FundTransfer",
+            fromAcct: fromAcc,
+            toAcct:toAcc
+        }
 
+        let result1 = await updateAccountBalance(fromAccount)
+        if(!result1 || result1.status !== 0){
+            res.status(500).send({message:"Error updating"});
+        }
+        let toAccount = {
+            accountId:toAcc,
+            status: "Success",
+            remarks: "Amount Received",
+            transAmt: amt,
+            credit: false,
+            transtype: "FundTransfer",
+            fromAcct: fromAcc,
+            toAcct:toAcc
+        }
 
+        let result2 = await updateAccountBalance(toAccount)
+        result2 && result2.status==0 ? res.status(200).send({message:"Funds Transferred!"}):
+        res.status(200).send({message:"Funds Transferred!"})
+    }catch(err){
+        res.status(500).send({message:"Error during funds transfer: "+err})
+    }
+}
