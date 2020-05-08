@@ -151,17 +151,43 @@ exports.getDetailedStatement = async function(req,res){
                     message: "Bad Data"
                 })
             }
+        valid = validateSearchObj(searchObj)
+        if(valid.status===-1)
+            res.status(400).send({message: 'Bad Data'})
+        let result
+        let cond
         switch(searchObj.criteria){
-            case 'DATE-RANGE' :  let result = await getTransactionListByDateRange(searchObj)
-                                    result && result.status === 0 ? res.status(200).send(result.transList):
-                                                                    res.status(500).send(result.err)
-                    break
-            case '' : break
-            case '' : break
+            case 'DATE-RANGE' : {
+                cond = { $and:[{accountId: searchObj.accountId}, 
+                                    {createdAt:{$gte:new Date(searchObj.fromDate.toString()).setHours(0,0,0)}}, 
+                                        {createdAt:{$lte:new Date(searchObj.toDate.toString()).setHours(23,59,59)}}] }
+                result = await getTransactionList(cond)
+                }
+            break
+            case 'AMOUNT' : {
+                if(searchObj.lessThan){
+                    cond = { $and:[{accountId: searchObj.accountId}, {transAmount:{$lte:searchObj.amount}}]}
+                }else{
+                    cond = { $and:[{accountId: searchObj.accountId}, {transAmount:{$gte:searchObj.amount}}]}
+                }
+                result = await getTransactionList(cond)
+                }
+            break
+            case 'MONTHLY' :{
+                const todate = new Date()
+                const fromdate = new Date()
+                fromdate.setDate(fromdate.getDate()-30)
+                cond = { $and:[{accountId: searchObj.accountId}, 
+                        {createdAt:{$gte:fromdate.setHours(0,0,0)}}, 
+                        {createdAt:{$lte:todate.setHours(23,59,59)}}] }
+                result = await getTransactionList(cond)
+                }
+            break
             case '' : break
             case '' : break
             default:    res.status(500).send({message: 'Unsupported search criteria'})
         }
+        result && result.status === 0 ? res.status(200).send(result.transList) : res.status(500).send(result.err)
 
     }catch(err){
         res.status(500).send({message:"Error get statement"+err})
@@ -169,18 +195,56 @@ exports.getDetailedStatement = async function(req,res){
 
 }
 
-getTransactionListByDateRange = async function(searchObj){
+getTransactionList = async function(condition){
     try{
-        let fromDate = searchObj.fromDate
-        let toDate = searchObj.toDate
+        transList = await TxnModel.find(condition)
+        if(!transList){
+            return {status: -1, err:'Cound not find any transactions', transList:[]} 
+        }
+        return {status:0, err:'', transList: transList}
+
+    }catch(err){
+        return {status: -1, err:err.toString(), transList:[]}
+    }
+}
+
+validateSearchObj = function(searchObj){
+    const badrequest = {status:-1, message: 'Bad Request'}
+    try{
+        let valid = {status:0, message: ''}
+        let result = {}
+        switch(searchObj.criteria){
+            case 'DATE-RANGE': (!searchObj.fromDate || !searchObj.toDate) ? result = badrequest : result = valid
+                    break
+            case 'AMOUNT' : (!searchObj.amount) ? result = badrequest : result = valid
+                    break
+            case 'MONTHLY' : result = valid
+                    break
+            case 'ANUALLY' : result = valid
+                    break
+            case 'CHEQUE' : (!searchObj.chequeNumber) ? result = badrequest : result = valid
+                    break
+        }
+        return result
+    }
+    catch(err){
+        return badrequest
+    }
+}
+
+
+
+getTransactionListByAmount = async function(searchObj){
+    try{
         let accountId = searchObj.accountId
-
-        const from = new Date(fromDate.toString())
-        from.setHours(0,0,0)
-        const to = new Date(toDate.toString())
-        to.setHours(23,59,59)
-
-        let cond = { $and:[{accountId: accountId}, {createdAt:{$gte:from}}, {createdAt:{$lte:to}}]}
+        let lessThan = searchObj.lessThan
+        let amount = searchObj.amount
+        let cond = {}
+        if(lessThan){
+            cond = { $and:[{accountId: accountId}, {transAmount:{$lte:amount}}]}
+        }else{
+            cond = { $and:[{accountId: accountId}, {transAmount:{$gte:amount}}]}
+        }
         transList = await TxnModel.find(cond)
         if(!transList){
             return {status: -1, err:'Cound not find any transactions', transList:[]} 
