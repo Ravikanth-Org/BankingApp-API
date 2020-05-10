@@ -183,8 +183,21 @@ exports.getDetailedStatement = async function(req,res){
                 result = await getTransactionList(cond)
                 }
             break
-            case '' : break
-            case '' : break
+            case 'ANNUALLY' : 
+                const todate = new Date()
+                const fromdate = new Date()
+                fromdate.setDate(fromdate.getDate()-365)
+                cond = { $and:[{accountId: searchObj.accountId}, 
+                        {createdAt:{$gte:fromdate.setHours(0,0,0)}}, 
+                        {createdAt:{$lte:todate.setHours(23,59,59)}}] }
+                result = await getTransactionList(cond)
+            break
+            case 'CHEQUE' : 
+                const cheque = searchObj.chequeNumber
+                cond = { $and:[{accountId: searchObj.accountId}, 
+                        {chequeNumber:cheque}] }
+                result = await getTransactionList(cond)
+            break
             default:    res.status(500).send({message: 'Unsupported search criteria'})
         }
         result && result.status === 0 ? res.status(200).send(result.transList) : res.status(500).send(result.err)
@@ -192,12 +205,11 @@ exports.getDetailedStatement = async function(req,res){
     }catch(err){
         res.status(500).send({message:"Error get statement"+err})
     }
-
 }
 
 getTransactionList = async function(condition){
     try{
-        transList = await TxnModel.find(condition)
+        transList = await TxnModel.find(condition).sort({createdAt:'descending'})
         if(!transList){
             return {status: -1, err:'Cound not find any transactions', transList:[]} 
         }
@@ -220,7 +232,7 @@ validateSearchObj = function(searchObj){
                     break
             case 'MONTHLY' : result = valid
                     break
-            case 'ANUALLY' : result = valid
+            case 'ANNUALLY' : result = valid
                     break
             case 'CHEQUE' : (!searchObj.chequeNumber) ? result = badrequest : result = valid
                     break
@@ -229,29 +241,5 @@ validateSearchObj = function(searchObj){
     }
     catch(err){
         return badrequest
-    }
-}
-
-
-
-getTransactionListByAmount = async function(searchObj){
-    try{
-        let accountId = searchObj.accountId
-        let lessThan = searchObj.lessThan
-        let amount = searchObj.amount
-        let cond = {}
-        if(lessThan){
-            cond = { $and:[{accountId: accountId}, {transAmount:{$lte:amount}}]}
-        }else{
-            cond = { $and:[{accountId: accountId}, {transAmount:{$gte:amount}}]}
-        }
-        transList = await TxnModel.find(cond)
-        if(!transList){
-            return {status: -1, err:'Cound not find any transactions', transList:[]} 
-        }
-        return {status:0, err:'', transList: transList}
-
-    }catch(err){
-        return {status: -1, err:err.toString(), transList:[]}
     }
 }

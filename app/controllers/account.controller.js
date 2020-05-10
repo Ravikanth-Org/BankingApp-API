@@ -37,7 +37,7 @@ exports.create = (req, res) => {
 };
 
 
-exports.findAll = (req, res) => {
+exports.findAll = (res) => {
     AcctMdl.find()
     .then(account => {
         res.send(account);

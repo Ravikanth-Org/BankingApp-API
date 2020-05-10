@@ -29,6 +29,9 @@ app.use('/', index);
 const dbConfig = require('./config/dbconfig.js');
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
+mongoose.set('useUnifiedTopology', true);
+
+
 
 mongoose.Promise = global.Promise;
 
