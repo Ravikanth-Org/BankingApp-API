@@ -2,5 +2,5 @@ module.exports = (app) => {
     const branch = require('../controllers/branch.controller.js');
     
     app.post('/api/branch', branch.create);
-    app.get('/api/branchnames', branch.findAll);
+    app.get('/api/branches', branch.findAll);
 }
