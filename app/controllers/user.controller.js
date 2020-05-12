@@ -176,7 +176,7 @@ exports.userLogin = function (req, res) {
         res.send(
             {
                 Status: "Success", 
-                user: {username:usr.username, role: usr.role}
+                user: {username:usr.username, role: usr.role, userid: usr.userid}
         });
     }).catch(err => {
         if(err.kind === 'ObjectId') {
