@@ -37,6 +37,7 @@ exports.create = (req, res) => {
 };
 
 
+<<<<<<< HEAD
 exports.findAll = async function(req, res){
     try{
         const result = await AcctMdl.find()
@@ -49,6 +50,18 @@ exports.findAll = async function(req, res){
         return res.status(500).send({message: 'Could not find Accounts !!!'})
     }
 }
+=======
+exports.findAll = (req,res) => {
+    AcctMdl.find()
+    .then(account => {
+        res.send(account);
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "Some error occurred while retrieving details of employees."
+        });
+    });
+};
+>>>>>>> 72d349c001011a9e0bbd8f2228ad7aefc1f82a90
 
 /*  =================================
     Search Account by User Id

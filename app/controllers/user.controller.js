@@ -71,7 +71,7 @@ exports.findOne = (req, res) => {
 };
 
     if(req.params.name){
-    user.find().where('userDetails.name').equals(req.params.name)
+    user.find().where('username').equals(req.params.name)
     .then(usr => {
         if(usr.length === 0) {
             return res.status(404).send({
