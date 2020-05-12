@@ -5,7 +5,7 @@ module.exports = (app) => {
     app.get('/api/trnxs', transactions.findAll);
 
     app.get('/api/transaction/ministatement/:accountid',transactions.getMiniStatement)
-    app.get('/api/transaction/detailedstatement',transactions.getDetailedStatement)
+    app.post('/api/transaction/detailedstatement',transactions.getDetailedStatement)
 
     app.get('/api/trnx/:transactionId', transactions.findOne);
     app.put('/api/trnx/:transactionId', transactions.update);
