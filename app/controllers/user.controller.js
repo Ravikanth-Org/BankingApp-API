@@ -97,9 +97,9 @@ exports.findOne = (req, res) => {
 
 exports.update = (req, res) => {
 
-    if(!req.body.username) {
+    if(!req.body) {
         return res.status(400).send({
-            message: "username name can not be empty"
+            message: "null object"
         });
     }
 
