@@ -104,12 +104,13 @@ exports.update = (req, res) => {
     }
 
     user.findOneAndUpdate({userid: req.params.userId}, { $set: {
-        password: req.body.password,
         userDetails: {
             address: req.body.userDetails.address,
             city: req.body.userDetails.city,
-            pin: req.body.userDetails.pin,
-            phone: req.body.userDetails.phone
+            pin: parseInt(req.body.userDetails.pin),
+            phone: parseInt(req.body.userDetails.phone),
+            dob: new Date(req.body.userDetails.dob),
+            name: req.body.userDetails.name
     }
     }}, {new: true},function (err, usr) {
     })
